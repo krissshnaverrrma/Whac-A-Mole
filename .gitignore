@@ -1,0 +1,16 @@
+*.class
+bin/
+out/
+target/
+*.war
+*.zip
+*.log
+.vscode/
+.idea/
+*.iml
+.settings/
+.classpath
+.project
+*.ctxt
+.DS_Store
+Thumbs.db
