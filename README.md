@@ -47,18 +47,22 @@ Running via Command Line
 Navigate to the project directory:
 
 Bash
-
+```
 cd WhackAMoleGame
+```
 Compile the source code:
 
 Bash
-
+```
 javac -d bin src/**/*.java
+```
 Run the game:
 
 Bash
-
+```
 java -cp bin main.GameLauncher
+```
+
 Running in VS Code / IntelliJ
 Open the folder as a project.
 
@@ -69,3 +73,4 @@ Click Run.
 ⚠️ Assets Note
 
 Ensure your assets folder contains 16-bit PCM WAV files for audio. Standard MP3s or 32-bit Float WAVs may cause UnsupportedAudioFileException in Java.
+
