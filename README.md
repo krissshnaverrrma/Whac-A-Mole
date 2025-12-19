@@ -37,6 +37,8 @@ WhackAMoleGame/
     ├── bomb.wav
     └── miss.wav
 
+```
+
 🚀 How to Run
 Prerequisites
 Java Development Kit (JDK) 8 or higher.
@@ -65,4 +67,5 @@ Locate src/main/GameLauncher.java.
 Click Run.
 
 ⚠️ Assets Note
+
 Ensure your assets folder contains 16-bit PCM WAV files for audio. Standard MP3s or 32-bit Float WAVs may cause UnsupportedAudioFileException in Java.
