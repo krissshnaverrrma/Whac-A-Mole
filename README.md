@@ -2,6 +2,9 @@
 
 A high-performance, full-screen arcade game built with Java Swing. This project features dynamic rendering, realistic graphics, sound effects, and a responsive game loop.
 
+## 🎮 DEMO
+![game_review](/assets/game_preview.png)
+
 ## 🎮 Game Features
 * **Full Screen Experience:** Automatically detects screen resolution for immersive gameplay.
 * **Dynamic Spawning:** Moles and Bombs "dig" their own holes randomly across the map (no fixed grid).
