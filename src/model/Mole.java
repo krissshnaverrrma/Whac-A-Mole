@@ -7,6 +7,7 @@ public class Mole {
     protected int width, height;
     protected Image image;
     protected boolean visible;
+    protected boolean isHit = false;
 
     public Mole(int x, int y, int w, int h, Image image) {
         this.x = x;
@@ -35,5 +36,17 @@ public class Mole {
 
     public boolean isVisible() {
         return visible;
+    }
+
+    public void setImage(Image img) {
+        this.image = img;
+    }
+
+    public void setHit(boolean hit) {
+        this.isHit = hit;
+    }
+
+    public boolean isHit() {
+        return isHit;
     }
 }

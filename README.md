@@ -29,8 +29,9 @@ WhackAMoleGame/
 └── assets/                     # Graphics & Audio Files
     ├── bg.png
     ├── mole.png
-    ├── bomb.png
+    ├── hit_mole.png
     ├── hole.png
+    ├── bomb.png
     ├── hammer.png
     ├── mole.wav
     ├── hit.wav

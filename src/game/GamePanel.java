@@ -1,13 +1,13 @@
 package game;
 
-import model.Mole;
-import model.Bomb;
-import util.GameTimer;
-import util.SoundPlayer;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Random;
+import javax.swing.*;
+import model.Bomb;
+import model.Mole;
+import util.GameTimer;
+import util.SoundPlayer;
 
 public class GamePanel extends JPanel {
     private Mole[] slots;
@@ -25,15 +25,16 @@ public class GamePanel extends JPanel {
     private Image moleImg = new ImageIcon("assets/mole.png").getImage();
     private Image bombImg = new ImageIcon("assets/bomb.png").getImage();
     private Image hammerImg = new ImageIcon("assets/hammer.png").getImage();
+    private Image hitMoleImg = new ImageIcon("assets/hit_mole.png").getImage();
     private Rectangle startButtonRect;
 
     public GamePanel() {
         setPreferredSize(new Dimension(GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT));
         initHolePositions();
         slots = new Mole[9];
-        setCustomCursor();
+        setCursor(Cursor.getDefaultCursor());
         int btnW = 300;
-        int btnH = 100;
+        int btnH = 80;
         startButtonRect = new Rectangle(
                 (GameConfig.SCREEN_WIDTH - btnW) / 2,
                 (GameConfig.SCREEN_HEIGHT - btnH) / 2,
@@ -61,7 +62,7 @@ public class GamePanel extends JPanel {
         }
     }
 
-    private void setCustomCursor() {
+    private void setHammerCursor() {
         try {
             Cursor c = Toolkit.getDefaultToolkit().createCustomCursor(
                     hammerImg, new Point(0, 0), "Hammer");
@@ -81,21 +82,30 @@ public class GamePanel extends JPanel {
             return;
         }
         boolean hitSomething = false;
+
         for (int i = 0; i < 9; i++) {
             Mole m = slots[i];
-            if (m != null && m.isVisible() && m.contains(mx, my)) {
+            if (m != null && m.isVisible() && !m.isHit() && m.contains(mx, my)) {
                 hitSomething = true;
                 if (m instanceof Bomb) {
                     score -= GameConfig.BOMB_PENALTY;
                     SoundPlayer.play("assets/bomb.wav");
+                    m.setVisible(false);
                 } else {
                     score++;
                     SoundPlayer.play("assets/hit.wav");
                     if (score % GameConfig.SCORE_PER_LEVEL == 0)
                         levelUp();
+                    m.setHit(true);
+                    m.setImage(hitMoleImg);
+                    repaint();
+                    Timer animTimer = new Timer(300, e -> {
+                        m.setVisible(false);
+                        repaint();
+                    });
+                    animTimer.setRepeats(false);
+                    animTimer.start();
                 }
-                m.setVisible(false);
-                repaint();
                 break;
             }
         }
@@ -109,6 +119,7 @@ public class GamePanel extends JPanel {
         score = 0;
         level = 1;
         speed = GameConfig.START_SPEED;
+        setHammerCursor();
         if (moleTimer != null)
             moleTimer.stop();
         moleTimer = new Timer(speed, e -> updateGameLoop());
@@ -123,12 +134,16 @@ public class GamePanel extends JPanel {
     private void resetGame() {
         isRunning = false;
         isGameOver = false;
+        setCursor(Cursor.getDefaultCursor());
         repaint();
     }
 
     private void updateGameLoop() {
-        for (int i = 0; i < 9; i++)
-            slots[i] = null;
+        for (int i = 0; i < 9; i++) {
+            if (slots[i] != null && !slots[i].isHit()) {
+                slots[i] = null;
+            }
+        }
         int index = random.nextInt(9);
         int x = holeCoordinates[index].x;
         int y = holeCoordinates[index].y;
@@ -151,6 +166,7 @@ public class GamePanel extends JPanel {
     private void endGame() {
         moleTimer.stop();
         isGameOver = true;
+        setCursor(Cursor.getDefaultCursor());
         repaint();
     }
 
@@ -158,6 +174,7 @@ public class GamePanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         if (bgImg.getWidth(null) > 0) {
             g.drawImage(bgImg, 0, 0, getWidth(), getHeight(), null);
         } else {
@@ -176,17 +193,24 @@ public class GamePanel extends JPanel {
     private void drawMenu(Graphics2D g) {
         g.setColor(new Color(0, 0, 0, 150));
         g.fillRect(0, 0, getWidth(), getHeight());
-        g.setColor(Color.ORANGE);
-        g.fill(startButtonRect);
+        int rX = startButtonRect.x;
+        int rY = startButtonRect.y;
+        int rW = startButtonRect.width;
+        int rH = startButtonRect.height;
+        int arc = 30;
+        g.setColor(new Color(180, 100, 0));
+        g.fillRoundRect(rX, rY + 8, rW, rH, arc, arc);
+        g.setColor(new Color(255, 165, 0));
+        g.fillRoundRect(rX, rY, rW, rH, arc, arc);
         g.setColor(Color.WHITE);
-        g.setStroke(new BasicStroke(5));
-        g.draw(startButtonRect);
+        g.setStroke(new BasicStroke(4));
+        g.drawRoundRect(rX, rY, rW, rH, arc, arc);
         g.setColor(Color.WHITE);
-        g.setFont(new Font("Arial", Font.BOLD, 50));
-        String text = "START";
+        g.setFont(new Font("Segoe UI", Font.BOLD, 45));
+        String text = "PLAY GAME";
         FontMetrics fm = g.getFontMetrics();
-        int tx = startButtonRect.x + (startButtonRect.width - fm.stringWidth(text)) / 2;
-        int ty = startButtonRect.y + (startButtonRect.height + fm.getAscent() - 20) / 2;
+        int tx = rX + (rW - fm.stringWidth(text)) / 2;
+        int ty = rY + (rH + fm.getAscent() - 15) / 2;
         g.drawString(text, tx, ty);
     }
 
@@ -196,10 +220,10 @@ public class GamePanel extends JPanel {
             if (m != null && m.isVisible()) {
                 Point p = holeCoordinates[i];
                 if (holeImg.getWidth(null) > 0) {
-                    g.drawImage(holeImg, p.x, p.y, 180, 100, null);
+                    g.drawImage(holeImg, p.x, p.y, 130, 80, null);
                 } else {
                     g.setColor(new Color(60, 40, 20));
-                    g.fillOval(p.x, p.y, 160, 80);
+                    g.fillOval(p.x, p.y, 120, 60);
                 }
                 g.setColor(new Color(0, 0, 0, 70));
                 g.fillOval(p.x + 30, p.y + 60, 100, 30);
